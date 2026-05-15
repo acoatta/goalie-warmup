@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goalie Pregame Warmup</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ice: #e8f4f8;
+    --deep: #0a1628;
+    --navy: #112240;
+    --blue: #1a3a6b;
+    --accent: #00b4d8;
+    --gold: #f4a726;
+    --text: #ccd6f6;
+    --muted: #8892b0;
+    --phase1: #00b4d8;
+    --phase2: #7c3aed;
+    --phase3: #f4a726;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Rink texture background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,180,216,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 60% at 80% 100%, rgba(26,58,107,0.4) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px 60px;
+  }
+
+  /* HEADER */
+  header {
+    padding: 32px 0 24px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0,180,216,0.2);
+    margin-bottom: 32px;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(0,180,216,0.1);
+    border: 1px solid rgba(0,180,216,0.3);
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 900;
+    line-height: 0.9;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    color: #fff;
+  }
+
+  h1 span {
+    display: block;
+    color: var(--accent);
+  }
+
+  .header-meta {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .meta-pill {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .meta-pill strong {
+    color: var(--gold);
+  }
+
+  /* PHASE SECTIONS */
+  .phase {
+    margin-bottom: 28px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  .phase-header:hover {
+    background: rgba(255,255,255,0.03);
+  }
+
+  .phase-number {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    min-width: 28px;
+  }
+
+  .phase-title {
+    flex: 1;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(20px, 4vw, 26px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+  }
+
+  .phase-time {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+
+  .phase-chevron {
+    font-size: 18px;
+    transition: transform 0.3s;
+    color: var(--muted);
+    margin-left: 8px;
+  }
+
+  .phase.open .phase-chevron {
+    transform: rotate(180deg);
+  }
+
+  .phase-body {
+    display: none;
+    padding: 0 20px 20px;
+  }
+
+  .phase.open .phase-body {
+    display: block;
+  }
+
+  /* Color coding */
+  .phase-1 .phase-header { background: rgba(0,180,216,0.08); border-left: 3px solid var(--phase1); }
+  .phase-1 .phase-time { color: var(--phase1); }
+  .phase-2 .phase-header { background: rgba(124,58,237,0.08); border-left: 3px solid var(--phase2); }
+  .phase-2 .phase-time { color: var(--phase2); }
+  .phase-3 .phase-header { background: rgba(244,167,38,0.08); border-left: 3px solid var(--phase3); }
+  .phase-3 .phase-time { color: var(--phase3); }
+
+  /* EXERCISE ROWS */
+  .exercise-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 12px;
+  }
+
+  .exercise-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 3px;
+    padding: 12px 14px;
+    transition: background 0.15s;
+  }
+
+  .exercise-row:hover {
+    background: rgba(255,255,255,0.06);
+  }
+
+  .exercise-icon {
+    font-size: 20px;
+    min-width: 28px;
+    text-align: center;
+  }
+
+  .exercise-name {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 500;
+    color: #e0e8ff;
+  }
+
+  .exercise-detail {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+    text-align: right;
+    min-width: 90px;
+  }
+
+  .watch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(0,180,216,0.1);
+    border: 1px solid rgba(0,180,216,0.25);
+    border-radius: 2px;
+    padding: 4px 10px;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+
+  .watch-btn:hover {
+    background: rgba(0,180,216,0.2);
+    border-color: rgba(0,180,216,0.5);
+  }
+
+  .watch-btn::before {
+    content: '▶';
+    font-size: 9px;
+  }
+
+  /* Phase 2 watch btn color */
+  .phase-2 .watch-btn {
+    color: #a78bfa;
+    background: rgba(124,58,237,0.1);
+    border-color: rgba(124,58,237,0.25);
+  }
+  .phase-2 .watch-btn:hover {
+    background: rgba(124,58,237,0.2);
+    border-color: rgba(124,58,237,0.5);
+  }
+
+  /* Phase 3 */
+  .phase-3 .watch-btn {
+    color: var(--gold);
+    background: rgba(244,167,38,0.1);
+    border-color: rgba(244,167,38,0.25);
+  }
+  .phase-3 .watch-btn:hover {
+    background: rgba(244,167,38,0.2);
+    border-color: rgba(244,167,38,0.5);
+  }
+
+  /* GLOVE WORK SEGMENTS */
+  .segment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 12px;
+  }
+
+  .segment-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    background: rgba(255,255,255,0.03);
+    border-radius: 3px;
+    padding: 12px 14px;
+  }
+
+  .segment-icon { font-size: 18px; text-align: center; }
+
+  .segment-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #e0e8ff;
+  }
+
+  .segment-focus {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .segment-time {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    text-align: right;
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 0 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 2px;
+  }
+
+  /* NOTE BOX */
+  .note-box {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: rgba(244,167,38,0.06);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 3px 3px 0;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .note-box strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* TOTAL BAR */
+  .total-bar {
+    margin-top: 32px;
+    padding: 18px 24px;
+    background: rgba(0,180,216,0.06);
+    border: 1px solid rgba(0,180,216,0.2);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .total-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .total-time {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: -1px;
+  }
+
+  .total-note {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Progress dots */
+  .phase-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    transition: background 0.3s;
+    cursor: pointer;
+  }
+
+  .dot.p1 { background: rgba(0,180,216,0.5); }
+  .dot.p2 { background: rgba(124,58,237,0.5); }
+  .dot.p3 { background: rgba(244,167,38,0.5); }
+
+  @media (max-width: 600px) {
+    .exercise-detail { min-width: 70px; font-size: 13px; }
+    .exercise-name { font-size: 14px; }
+    .segment-row { grid-template-columns: 24px 1fr auto; }
+    .segment-time { display: none; }
+  }
+</style>
+</head>
+<body>
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="pin-card">
+    <div class="pin-logo">
+      <div class="pin-puck">🏒</div>
+      <div class="pin-title">Goalie<span> Warmup</span></div>
+    </div>
+    <p class="pin-subtitle">Enter your PIN to access the pregame routine</p>
+    <div class="pin-field">
+      <div class="pin-label">PIN</div>
+      <input id="pin-input" type="password" inputmode="numeric" autocomplete="off" placeholder="••••" maxlength="12" />
+      <div id="pin-error">Incorrect PIN — try again</div>
+    </div>
+    <button class="pin-btn" onclick="checkPin()">Let's Go</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+<div class="container">
+
+  <header>
+    <div class="header-badge">Pregame Routine</div>
+    <h1>Goalie<span>Warmup</span></h1>
+    <div class="header-meta">
+      <span class="meta-pill">🏒 Ice Hockey</span>
+      <span class="meta-pill">⏱ <strong>40 min</strong> timed</span>
+      <span class="meta-pill">🧤 Glove + Blocker</span>
+    </div>
+  </header>
+
+  <div class="phase-dots">
+    <div class="dot p1" onclick="togglePhase('phase1')"></div>
+    <div class="dot p2" onclick="togglePhase('phase2')"></div>
+    <div class="dot p3" onclick="togglePhase('phase3')"></div>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase phase-1 open" id="phase1">
+    <div class="phase-header" onclick="togglePhase('phase1')">
+      <span class="phase-number">01</span>
+      <span class="phase-title">Dynamic Warmup</span>
+      <span class="phase-time">15 min</span>
+      <span class="phase-chevron">▾</span>
+    </div>
+    <div class="phase-body">
+      <div class="section-label">Activation — No Gear</div>
+      <div class="exercise-list">
+        <div class="exercise-row">
+          <span class="exercise-icon">🏃</span>
+          <span class="exercise-name">Jog + High Knees</span>
+          <span class="exercise-detail">90 sec</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🦵</span>
+          <span class="exercise-name">Butt Kicks</span>
+          <span class="exercise-detail">30 sec</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">↔️</span>
+          <span class="exercise-name">Lateral Shuffles</span>
+          <span class="exercise-detail">45 sec each</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🔀</span>
+          <span class="exercise-name">Carioca (Grapevine)</span>
+          <span class="exercise-detail">30 sec each</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=ViOHs1b6jGc" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🦿</span>
+          <span class="exercise-name">Leg Swings — Front/Back</span>
+          <span class="exercise-detail">10 each leg</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🦿</span>
+          <span class="exercise-name">Leg Swings — Side to Side</span>
+          <span class="exercise-detail">10 each leg</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🔄</span>
+          <span class="exercise-name">Hip Circles</span>
+          <span class="exercise-detail">10 each way</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🧎</span>
+          <span class="exercise-name">Lunge with Torso Rotation</span>
+          <span class="exercise-detail">8 each leg</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🐛</span>
+          <span class="exercise-name">Inchworms</span>
+          <span class="exercise-detail">6 reps</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=Z19gpqxQBwo" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🦀</span>
+          <span class="exercise-name">Lateral Squat Walks</span>
+          <span class="exercise-detail">30 sec each</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">⭐</span>
+          <span class="exercise-name">Jumping Jacks</span>
+          <span class="exercise-detail">45 sec</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase phase-2" id="phase2">
+    <div class="phase-header" onclick="togglePhase('phase2')">
+      <span class="phase-number">02</span>
+      <span class="phase-title">Static Stretching</span>
+      <span class="phase-time">10 min</span>
+      <span class="phase-chevron">▾</span>
+    </div>
+    <div class="phase-body">
+      <div class="section-label">Hold each 20–30 sec — No Gear</div>
+      <div class="exercise-list">
+        <div class="exercise-row">
+          <span class="exercise-icon">🦋</span>
+          <span class="exercise-name">Butterfly Stretch</span>
+          <span class="exercise-detail">Feet together, press knees</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=OrxjCE_tJ3k" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🧘</span>
+          <span class="exercise-name">Seated Groin Stretch</span>
+          <span class="exercise-detail">Wide legs, reach forward</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=OrxjCE_tJ3k" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🫀</span>
+          <span class="exercise-name">Hip Flexor Lunge Stretch</span>
+          <span class="exercise-detail">Each side</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🦵</span>
+          <span class="exercise-name">Quad Stretch — Standing</span>
+          <span class="exercise-detail">Balance rep each leg</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">💪</span>
+          <span class="exercise-name">Shoulder Cross-Body Stretch</span>
+          <span class="exercise-detail">Each arm</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=aIq0fLi8iak" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🙆</span>
+          <span class="exercise-name">Tricep Overhead Stretch</span>
+          <span class="exercise-detail">Each arm</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
+        </div>
+        <div class="exercise-row">
+          <span class="exercise-icon">🫶</span>
+          <span class="exercise-name">Chest Opener</span>
+          <span class="exercise-detail">Hands clasped behind back</span>
+          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase phase-3" id="phase3">
+    <div class="phase-header" onclick="togglePhase('phase3')">
+      <span class="phase-number">03</span>
+      <span class="phase-title">Glove &amp; Blocker Work</span>
+      <span class="phase-time">15 min</span>
+      <span class="phase-chevron">▾</span>
+    </div>
+    <div class="phase-body">
+      <div class="section-label">Off the Wall — Bottom Gear On — With Dad</div>
+      <div class="segment-list">
+        <div class="segment-row">
+          <span class="segment-icon">🧤</span>
+          <div>
+            <div class="segment-name">Easy Glove Catches</div>
+            <div class="segment-focus">Warm the hands, find your stance</div>
+          </div>
+          <span class="segment-time">3 min</span>
+        </div>
+        <div class="segment-row">
+          <span class="segment-icon">🛡️</span>
+          <div>
+            <div class="segment-name">Blocker Redirects Off Wall</div>
+            <div class="segment-focus">Technique and positioning</div>
+          </div>
+          <span class="segment-time">3 min</span>
+        </div>
+        <div class="segment-row">
+          <span class="segment-icon">👁️</span>
+          <div>
+            <div class="segment-name">Glove Reaction — Varied Speed &amp; Angle</div>
+            <div class="segment-focus">Hand-eye, tracking</div>
+          </div>
+          <span class="segment-time">4 min</span>
+        </div>
+        <div class="segment-row">
+          <span class="segment-icon">🔁</span>
+          <div>
+            <div class="segment-name">Two-Touch Combo — Glove/Blocker</div>
+            <div class="segment-focus">Coordination and focus</div>
+          </div>
+          <span class="segment-time">3 min</span>
+        </div>
+        <div class="segment-row">
+          <span class="segment-icon">⭐</span>
+          <div>
+            <div class="segment-name">Closing Sequence — Your Call</div>
+            <div class="segment-focus">Own it. You decide when you're ready.</div>
+          </div>
+          <span class="segment-time">2 min</span>
+        </div>
+      </div>
+      <div class="note-box">
+        <strong>Closing sequence note:</strong> These two minutes are yours. Pick what feels right and end the warmup on your terms. That's how you walk into the rink locked in.
+      </div>
+    </div>
+  </div>
+
+  <div class="total-bar">
+    <div>
+      <div class="total-label">Total Timed Warmup</div>
+      <div class="total-note">Gear-up time is separate</div>
+    </div>
+    <div class="total-time">40 min</div>
+  </div>
+
+</div>
+</div><!-- /app -->
+
+<script>
+  // ─── SET YOUR PIN HERE ────────────────────────────────────────────
+  const CORRECT_PIN = '0911';
+  // ─────────────────────────────────────────────────────────────────
+
+  const SESSION_KEY = 'goalie_warmup_auth';
+
+  function togglePhase(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+  }
+
+  function checkPin() {
+    const input = document.getElementById('pin-input').value.trim();
+    if (input === CORRECT_PIN) {
+      sessionStorage.setItem(SESSION_KEY, 'true');
+      document.getElementById('pin-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+    } else {
+      const err = document.getElementById('pin-error');
+      const box = document.getElementById('pin-input');
+      err.style.opacity = '1';
+      box.value = '';
+      box.focus();
+      box.style.borderColor = '#ef4444';
+      setTimeout(() => {
+        err.style.opacity = '0';
+        box.style.borderColor = 'rgba(0,180,216,0.3)';
+      }, 2000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+      document.getElementById('pin-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+    } else {
+      document.getElementById('pin-screen').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
+      setTimeout(() => document.getElementById('pin-input').focus(), 100);
+    }
+
+    document.getElementById('pin-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkPin();
+    });
+  });
+</script>
+
+<style>
+  #pin-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--deep);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  #pin-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,180,216,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 60% at 80% 100%, rgba(26,58,107,0.4) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .pin-card {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    padding: 48px 40px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(0,180,216,0.15);
+    border-radius: 6px;
+    width: 100%;
+    max-width: 360px;
+    margin: 16px;
+  }
+
+  .pin-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pin-puck {
+    font-size: 40px;
+    line-height: 1;
+  }
+
+  .pin-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #fff;
+    text-align: center;
+  }
+
+  .pin-title span {
+    color: var(--accent);
+  }
+
+  .pin-subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .pin-field {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pin-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  #pin-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(0,180,216,0.3);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: #fff;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-text-security: disc;
+  }
+
+  #pin-input:focus {
+    border-color: var(--accent);
+    background: rgba(0,180,216,0.06);
+  }
+
+  #pin-error {
+    font-size: 12px;
+    color: #ef4444;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    min-height: 18px;
+  }
+
+  .pin-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: var(--deep);
+    border: none;
+    border-radius: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .pin-btn:hover { background: #00c9f0; }
+  .pin-btn:active { transform: scale(0.98); }
+</style>
+</body>
+</html>
