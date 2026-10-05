@@ -2,852 +2,1157 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Goalie Pregame Warmup</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Goalie Warmup</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --ice: #e8f4f8;
-    --deep: #0a1628;
-    --navy: #112240;
-    --blue: #1a3a6b;
-    --accent: #00b4d8;
-    --gold: #f4a726;
-    --text: #ccd6f6;
-    --muted: #8892b0;
-    --phase1: #00b4d8;
-    --phase2: #7c3aed;
-    --phase3: #f4a726;
-  }
+/* ── TOKENS ───────────────────────────────────────────────── */
+:root {
+  --deep:    #0a1628;
+  --navy:    #112240;
+  --accent:  #00b4d8;
+  --gold:    #f4a726;
+  --green:   #22c55e;
+  --red:     #ef4444;
+  --text:    #ccd6f6;
+  --muted:   #8892b0;
+  --c1:      #00b4d8;
+  --c2:      #7c3aed;
+  --c3:      #f4a726;
+  --c4:      #22c55e;
+  --c5:      #f43f5e;
+  --radius:  6px;
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-  body {
-    background: var(--deep);
-    color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+html, body {
+  height: 100%;
+  background: var(--deep);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  overflow: hidden;
+}
 
-  /* Rink texture background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,180,216,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 60% at 80% 100%, rgba(26,58,107,0.4) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ── AMBIENT BG ───────────────────────────────────────────── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,180,216,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 80% 100%, rgba(26,58,107,.35) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
 
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 16px 60px;
-  }
+/* ══════════════════════════════════════════════════════════
+   PIN SCREEN
+══════════════════════════════════════════════════════════ */
+#pin-screen {
+  position:fixed; inset:0; z-index:999;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--deep);
+}
+#pin-screen::before {
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,180,216,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 80% 100%, rgba(26,58,107,.4) 0%, transparent 70%);
+}
+.pin-card {
+  position:relative; z-index:1;
+  width:min(360px, 92vw);
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(0,180,216,.15);
+  border-radius:var(--radius);
+  padding:48px 36px;
+  display:flex; flex-direction:column; align-items:center; gap:24px;
+}
+.pin-puck { font-size:44px; line-height:1; }
+.pin-title {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:32px; font-weight:900; text-transform:uppercase;
+  color:#fff; text-align:center;
+}
+.pin-title span { color:var(--accent); }
+.pin-sub { font-size:13px; color:var(--muted); text-align:center; }
+.pin-label {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted);
+  width:100%; text-align:center;
+}
+#pin-input {
+  width:100%;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(0,180,216,.3);
+  border-radius:4px;
+  padding:14px 16px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:28px; font-weight:700; letter-spacing:8px;
+  color:#fff; text-align:center; outline:none;
+  transition:border-color .2s, background .2s;
+  -webkit-text-security:disc;
+}
+#pin-input:focus { border-color:var(--accent); background:rgba(0,180,216,.06); }
+#pin-error {
+  font-size:12px; color:var(--red); text-align:center;
+  opacity:0; transition:opacity .2s; min-height:16px; width:100%;
+}
+.pin-btn {
+  width:100%; padding:15px;
+  background:var(--accent); color:var(--deep);
+  border:none; border-radius:4px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:16px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:background .15s, transform .1s;
+}
+.pin-btn:hover { background:#00c9f0; }
+.pin-btn:active { transform:scale(.98); }
 
-  /* HEADER */
-  header {
-    padding: 32px 0 24px;
-    text-align: center;
-    border-bottom: 1px solid rgba(0,180,216,0.2);
-    margin-bottom: 32px;
-  }
+/* ══════════════════════════════════════════════════════════
+   SETUP SCREEN
+══════════════════════════════════════════════════════════ */
+#setup-screen {
+  position:fixed; inset:0; z-index:99;
+  display:none; align-items:center; justify-content:center;
+  background:var(--deep);
+}
+#setup-screen::before {
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,180,216,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 80% 100%, rgba(26,58,107,.4) 0%, transparent 70%);
+}
+.setup-card {
+  position:relative; z-index:1;
+  width:min(400px, 92vw);
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(0,180,216,.15);
+  border-radius:var(--radius);
+  padding:44px 36px;
+  display:flex; flex-direction:column; align-items:center; gap:28px;
+}
+.setup-title {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:28px; font-weight:900; text-transform:uppercase;
+  color:#fff; text-align:center; line-height:1.1;
+}
+.setup-title span { color:var(--accent); }
+.setup-sub { font-size:13px; color:var(--muted); text-align:center; line-height:1.5; }
+.time-field { width:100%; display:flex; flex-direction:column; gap:10px; }
+.time-label {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted); text-align:center;
+}
+.time-input-row {
+  display:flex; align-items:center; justify-content:center; gap:12px;
+}
+#time-input {
+  width:110px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(0,180,216,.3);
+  border-radius:4px;
+  padding:14px 12px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:36px; font-weight:900; letter-spacing:2px;
+  color:#fff; text-align:center; outline:none;
+  transition:border-color .2s;
+}
+#time-input:focus { border-color:var(--accent); }
+.time-unit {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:1px;
+}
+.time-presets {
+  display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+}
+.preset-btn {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px; font-weight:700; letter-spacing:1px;
+  padding:6px 14px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:3px; color:var(--muted);
+  cursor:pointer; transition:all .15s;
+}
+.preset-btn:hover, .preset-btn.active {
+  background:rgba(0,180,216,.12);
+  border-color:rgba(0,180,216,.4);
+  color:var(--accent);
+}
+.phase-preview {
+  width:100%;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:4px;
+  padding:14px 16px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.preview-label {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted); margin-bottom:4px;
+}
+.preview-row {
+  display:flex; align-items:center; gap:10px;
+}
+.preview-dot {
+  width:8px; height:8px; border-radius:50%; flex-shrink:0;
+}
+.preview-name {
+  flex:1;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px; font-weight:600; text-transform:uppercase;
+  letter-spacing:.5px; color:var(--text);
+}
+.preview-dur {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:16px; font-weight:700; color:var(--muted);
+}
+.start-btn {
+  width:100%; padding:16px;
+  background:var(--accent); color:var(--deep);
+  border:none; border-radius:4px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:17px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:background .15s, transform .1s;
+}
+.start-btn:hover { background:#00c9f0; }
+.start-btn:active { transform:scale(.98); }
 
-  .header-badge {
-    display: inline-block;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--accent);
-    background: rgba(0,180,216,0.1);
-    border: 1px solid rgba(0,180,216,0.3);
-    padding: 4px 14px;
-    border-radius: 2px;
-    margin-bottom: 14px;
-  }
+/* ══════════════════════════════════════════════════════════
+   MAIN APP
+══════════════════════════════════════════════════════════ */
+#app {
+  position:fixed; inset:0; z-index:10;
+  display:none; flex-direction:column;
+}
 
-  h1 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(42px, 8vw, 72px);
-    font-weight: 900;
-    line-height: 0.9;
-    text-transform: uppercase;
-    letter-spacing: -1px;
-    color: #fff;
-  }
+/* ── TOP BAR ─────────────────────────────────────────────── */
+.top-bar {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 16px;
+  background:rgba(10,22,40,.9);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  flex-shrink:0; position:relative; z-index:2;
+}
+.back-btn {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px; font-weight:700; letter-spacing:1px;
+  text-transform:uppercase; color:var(--muted);
+  background:none; border:none; cursor:pointer;
+  padding:6px 10px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:3px;
+  transition:all .15s;
+}
+.back-btn:hover { color:var(--text); border-color:rgba(255,255,255,.2); }
+.top-phase-info {
+  flex:1;
+  display:flex; flex-direction:column;
+}
+.top-phase-label {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted);
+}
+.top-phase-name {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:20px; font-weight:900; text-transform:uppercase;
+  color:#fff; line-height:1;
+}
+.timer-display {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:32px; font-weight:900; letter-spacing:-1px;
+  color:var(--accent); cursor:pointer;
+  transition:color .3s;
+  user-select:none;
+}
+.timer-display.warning { color:var(--gold); }
+.timer-display.danger  { color:var(--red); animation:pulse 1s infinite; }
+.timer-display.done    { color:var(--muted); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+.timer-display.paused  { opacity:.6; }
 
-  h1 span {
-    display: block;
-    color: var(--accent);
-  }
+/* ── PHASE DOTS NAV ──────────────────────────────────────── */
+.phase-nav {
+  display:flex; align-items:center; justify-content:center;
+  gap:8px; padding:10px 16px;
+  background:rgba(10,22,40,.7);
+  border-bottom:1px solid rgba(255,255,255,.05);
+  flex-shrink:0;
+}
+.phase-dot-btn {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  background:none; border:none; cursor:pointer; padding:4px 8px;
+}
+.pdot {
+  width:10px; height:10px; border-radius:50%;
+  background:rgba(255,255,255,.1);
+  transition:all .25s;
+  border:2px solid transparent;
+}
+.pdot.done { opacity:.4; }
+.pdot.active { transform:scale(1.4); border-color:rgba(255,255,255,.4); }
+.pdot-label {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:9px; font-weight:700; letter-spacing:1px;
+  text-transform:uppercase; color:rgba(255,255,255,.25);
+  transition:color .25s;
+}
+.phase-dot-btn.active .pdot-label { color:rgba(255,255,255,.7); }
 
-  .header-meta {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-  }
+/* ── PROGRESS BAR ────────────────────────────────────────── */
+.progress-strip {
+  height:3px; background:rgba(255,255,255,.05); flex-shrink:0;
+}
+.progress-fill {
+  height:100%; background:var(--accent);
+  transition:width .4s ease, background .4s;
+}
 
-  .meta-pill {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
+/* ── PHASE VIEWPORT ──────────────────────────────────────── */
+.phase-viewport {
+  flex:1; overflow:hidden; position:relative;
+}
+.phases-track {
+  display:flex; height:100%;
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.phase-slide {
+  min-width:100%; height:100%;
+  overflow-y:auto; padding:16px 16px 120px;
+  -webkit-overflow-scrolling:touch;
+}
 
-  .meta-pill strong {
-    color: var(--gold);
-  }
+/* ── PHASE HEADER ────────────────────────────────────────── */
+.phase-header-block {
+  display:flex; align-items:flex-start; gap:14px; margin-bottom:16px;
+}
+.phase-num-badge {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted);
+  padding-top:2px;
+}
+.phase-title-block { flex:1; }
+.phase-slide-title {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(26px,5vw,36px); font-weight:900;
+  text-transform:uppercase; color:#fff; line-height:1;
+}
+.phase-slide-meta {
+  font-size:13px; color:var(--muted); margin-top:4px;
+}
+.phase-alloc {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:22px; font-weight:900; margin-top:2px;
+  transition:color .3s;
+}
+.phase-progress-row {
+  display:flex; align-items:center; gap:10px; margin-bottom:16px;
+}
+.phase-check-count {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px; font-weight:700; letter-spacing:1px;
+  text-transform:uppercase; color:var(--muted);
+}
+.mini-bar {
+  flex:1; height:4px; background:rgba(255,255,255,.07);
+  border-radius:2px; overflow:hidden;
+}
+.mini-fill {
+  height:100%; border-radius:2px;
+  transition:width .3s;
+}
 
-  /* PHASE SECTIONS */
-  .phase {
-    margin-bottom: 28px;
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.06);
-  }
+/* ── EXERCISE ROWS ───────────────────────────────────────── */
+.ex-list { display:flex; flex-direction:column; gap:6px; }
 
-  .phase-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 20px;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.2s;
-  }
+.ex-row {
+  display:flex; align-items:center; gap:12px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:4px;
+  padding:13px 14px;
+  cursor:pointer;
+  transition:background .15s, opacity .3s;
+  user-select:none;
+}
+.ex-row:active { transform:scale(.99); }
+.ex-row.checked {
+  opacity:.45;
+}
+.ex-row.checked .ex-name {
+  text-decoration:line-through;
+  color:var(--muted);
+}
+.ex-checkbox {
+  width:22px; height:22px; border-radius:50%;
+  border:2px solid rgba(255,255,255,.2);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:all .2s;
+  font-size:12px; color:transparent;
+}
+.ex-row.checked .ex-checkbox {
+  background:var(--green);
+  border-color:var(--green);
+  color:#fff;
+}
+.ex-icon { font-size:20px; min-width:26px; text-align:center; }
+.ex-name {
+  flex:1; font-size:15px; font-weight:500; color:#e0e8ff;
+  transition:color .3s;
+}
+.ex-detail {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px; font-weight:600; color:var(--muted);
+  text-align:right; min-width:80px;
+}
 
-  .phase-header:hover {
-    background: rgba(255,255,255,0.03);
-  }
+/* Ball work segment rows */
+.seg-row {
+  display:flex; align-items:flex-start; gap:12px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:4px;
+  padding:13px 14px;
+  cursor:pointer;
+  transition:background .15s, opacity .3s;
+  user-select:none;
+}
+.seg-row.checked { opacity:.45; }
+.seg-row.checked .seg-name { text-decoration:line-through; color:var(--muted); }
+.seg-content { flex:1; }
+.seg-name { font-size:15px; font-weight:500; color:#e0e8ff; transition:color .3s; }
+.seg-focus { font-size:12px; color:var(--muted); margin-top:3px; line-height:1.4; }
+.seg-time {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px; font-weight:700; flex-shrink:0;
+  padding-top:2px;
+}
 
-  .phase-number {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    opacity: 0.5;
-    min-width: 28px;
-  }
+/* Note box */
+.note-box {
+  margin-top:14px;
+  padding:12px 14px;
+  background:rgba(244,167,38,.06);
+  border-left:3px solid var(--gold);
+  border-radius:0 4px 4px 0;
+  font-size:13px; color:var(--muted); line-height:1.5;
+}
+.note-box strong { color:var(--gold); }
 
-  .phase-title {
-    flex: 1;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(20px, 4vw, 26px);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #fff;
-  }
+/* Section divider */
+.section-divider {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted);
+  padding:12px 0 8px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  margin-bottom:6px;
+}
 
-  .phase-time {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-  }
+/* ── BOTTOM NAV ──────────────────────────────────────────── */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0; z-index:20;
+  display:none;
+  flex-direction:row; gap:10px;
+  padding:14px 16px;
+  background:rgba(10,22,40,.95);
+  border-top:1px solid rgba(255,255,255,.07);
+  backdrop-filter:blur(8px);
+}
+.nav-btn {
+  flex:1; padding:15px 10px;
+  border:none; border-radius:4px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  cursor:pointer; transition:all .15s;
+}
+.nav-prev {
+  background:rgba(255,255,255,.07);
+  color:var(--muted);
+  border:1px solid rgba(255,255,255,.1);
+}
+.nav-prev:hover { background:rgba(255,255,255,.12); color:var(--text); }
+.nav-next {
+  background:var(--accent); color:var(--deep);
+}
+.nav-next:hover { background:#00c9f0; }
+.nav-next:disabled {
+  background:rgba(255,255,255,.1); color:var(--muted); cursor:not-allowed;
+}
+.nav-next.finish { background:var(--green); }
+.nav-next.finish:hover { background:#16a34a; }
 
-  .phase-chevron {
-    font-size: 18px;
-    transition: transform 0.3s;
-    color: var(--muted);
-    margin-left: 8px;
-  }
+/* ── COMPLETE SCREEN ─────────────────────────────────────── */
+#complete-screen {
+  position:fixed; inset:0; z-index:50;
+  display:none; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:var(--deep); text-align:center; gap:20px; padding:32px;
+}
+#complete-screen::before {
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%, rgba(34,197,94,.06) 0%, transparent 70%);
+}
+.complete-icon { font-size:64px; position:relative; z-index:1; }
+.complete-title {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:52px; font-weight:900; text-transform:uppercase;
+  color:#fff; line-height:.9; position:relative; z-index:1;
+}
+.complete-title span { color:var(--green); }
+.complete-sub {
+  font-size:15px; color:var(--muted); max-width:300px; line-height:1.5;
+  position:relative; z-index:1;
+}
+.complete-stats {
+  display:flex; gap:24px; position:relative; z-index:1;
+}
+.stat-block { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.stat-num {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:36px; font-weight:900; color:var(--accent);
+}
+.stat-lbl {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted);
+}
+.reset-btn {
+  padding:14px 32px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:4px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  color:var(--muted); cursor:pointer; transition:all .15s;
+  position:relative; z-index:1;
+}
+.reset-btn:hover { background:rgba(255,255,255,.12); color:var(--text); }
 
-  .phase.open .phase-chevron {
-    transform: rotate(180deg);
-  }
+/* ── TIMER ALERT OVERLAY ─────────────────────────────────── */
+#timer-alert {
+  position:fixed; top:80px; left:50%; transform:translateX(-50%);
+  z-index:200;
+  background:rgba(239,68,68,.15);
+  border:1px solid rgba(239,68,68,.4);
+  border-radius:4px;
+  padding:12px 24px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  color:var(--red); text-align:center;
+  opacity:0; pointer-events:none;
+  transition:opacity .4s;
+}
+#timer-alert.show { opacity:1; }
 
-  .phase-body {
-    display: none;
-    padding: 0 20px 20px;
-  }
+/* ── YOUTUBE BUTTON ──────────────────────────────────────── */
+.yt-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:30px; height:30px; border-radius:4px; flex-shrink:0;
+  background:rgba(255,0,0,.15);
+  border:1px solid rgba(255,0,0,.25);
+  color:#ff4444; font-size:13px;
+  text-decoration:none;
+  transition:background .15s, border-color .15s;
+}
+.yt-btn:hover { background:rgba(255,0,0,.3); border-color:rgba(255,0,0,.5); }
 
-  .phase.open .phase-body {
-    display: block;
-  }
-
-  /* Color coding */
-  .phase-1 .phase-header { background: rgba(0,180,216,0.08); border-left: 3px solid var(--phase1); }
-  .phase-1 .phase-time { color: var(--phase1); }
-  .phase-2 .phase-header { background: rgba(124,58,237,0.08); border-left: 3px solid var(--phase2); }
-  .phase-2 .phase-time { color: var(--phase2); }
-  .phase-3 .phase-header { background: rgba(244,167,38,0.08); border-left: 3px solid var(--phase3); }
-  .phase-3 .phase-time { color: var(--phase3); }
-
-  /* EXERCISE ROWS */
-  .exercise-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-top: 12px;
-  }
-
-  .exercise-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 3px;
-    padding: 12px 14px;
-    transition: background 0.15s;
-  }
-
-  .exercise-row:hover {
-    background: rgba(255,255,255,0.06);
-  }
-
-  .exercise-icon {
-    font-size: 20px;
-    min-width: 28px;
-    text-align: center;
-  }
-
-  .exercise-name {
-    flex: 1;
-    font-size: 15px;
-    font-weight: 500;
-    color: #e0e8ff;
-  }
-
-  .exercise-detail {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.3px;
-    text-align: right;
-    min-width: 90px;
-  }
-
-  .watch-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--accent);
-    background: rgba(0,180,216,0.1);
-    border: 1px solid rgba(0,180,216,0.25);
-    border-radius: 2px;
-    padding: 4px 10px;
-    text-decoration: none;
-    transition: background 0.15s, border-color 0.15s;
-    white-space: nowrap;
-  }
-
-  .watch-btn:hover {
-    background: rgba(0,180,216,0.2);
-    border-color: rgba(0,180,216,0.5);
-  }
-
-  .watch-btn::before {
-    content: '▶';
-    font-size: 9px;
-  }
-
-  /* Phase 2 watch btn color */
-  .phase-2 .watch-btn {
-    color: #a78bfa;
-    background: rgba(124,58,237,0.1);
-    border-color: rgba(124,58,237,0.25);
-  }
-  .phase-2 .watch-btn:hover {
-    background: rgba(124,58,237,0.2);
-    border-color: rgba(124,58,237,0.5);
-  }
-
-  /* Phase 3 */
-  .phase-3 .watch-btn {
-    color: var(--gold);
-    background: rgba(244,167,38,0.1);
-    border-color: rgba(244,167,38,0.25);
-  }
-  .phase-3 .watch-btn:hover {
-    background: rgba(244,167,38,0.2);
-    border-color: rgba(244,167,38,0.5);
-  }
-
-  /* GLOVE WORK SEGMENTS */
-  .segment-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-top: 12px;
-  }
-
-  .segment-row {
-    display: grid;
-    grid-template-columns: 28px 1fr auto auto;
-    gap: 12px;
-    align-items: center;
-    background: rgba(255,255,255,0.03);
-    border-radius: 3px;
-    padding: 12px 14px;
-  }
-
-  .segment-icon { font-size: 18px; text-align: center; }
-
-  .segment-name {
-    font-size: 15px;
-    font-weight: 500;
-    color: #e0e8ff;
-  }
-
-  .segment-focus {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .segment-time {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--gold);
-    text-align: right;
-  }
-
-  /* SECTION LABEL */
-  .section-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 14px 0 6px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    margin-bottom: 2px;
-  }
-
-  /* NOTE BOX */
-  .note-box {
-    margin-top: 16px;
-    padding: 12px 14px;
-    background: rgba(244,167,38,0.06);
-    border-left: 3px solid var(--gold);
-    border-radius: 0 3px 3px 0;
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-
-  .note-box strong {
-    color: var(--gold);
-    font-weight: 600;
-  }
-
-  /* TOTAL BAR */
-  .total-bar {
-    margin-top: 32px;
-    padding: 18px 24px;
-    background: rgba(0,180,216,0.06);
-    border: 1px solid rgba(0,180,216,0.2);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .total-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .total-time {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 36px;
-    font-weight: 900;
-    color: var(--accent);
-    letter-spacing: -1px;
-  }
-
-  .total-note {
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  /* Progress dots */
-  .phase-dots {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.1);
-    transition: background 0.3s;
-    cursor: pointer;
-  }
-
-  .dot.p1 { background: rgba(0,180,216,0.5); }
-  .dot.p2 { background: rgba(124,58,237,0.5); }
-  .dot.p3 { background: rgba(244,167,38,0.5); }
-
-  @media (max-width: 600px) {
-    .exercise-detail { min-width: 70px; font-size: 13px; }
-    .exercise-name { font-size: 14px; }
-    .segment-row { grid-template-columns: 24px 1fr auto; }
-    .segment-time { display: none; }
-  }
+/* ── UTILS ───────────────────────────────────────────────── */
+.hidden { display:none !important; }
 </style>
 </head>
 <body>
-<!-- PIN SCREEN -->
+
+<!-- ════════════════ PIN SCREEN ════════════════ -->
 <div id="pin-screen">
   <div class="pin-card">
-    <div class="pin-logo">
-      <div class="pin-puck">🏒</div>
-      <div class="pin-title">Goalie<span> Warmup</span></div>
-    </div>
-    <p class="pin-subtitle">Enter your PIN to access the pregame routine</p>
-    <div class="pin-field">
+    <div class="pin-puck">🏒</div>
+    <div class="pin-title">Goalie<span> Warmup</span></div>
+    <p class="pin-sub">Enter your PIN to get started</p>
+    <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
       <div class="pin-label">PIN</div>
-      <input id="pin-input" type="password" inputmode="numeric" autocomplete="off" placeholder="••••" maxlength="12" />
+      <input id="pin-input" type="password" inputmode="numeric"
+             autocomplete="off" placeholder="••••" maxlength="12">
       <div id="pin-error">Incorrect PIN — try again</div>
     </div>
     <button class="pin-btn" onclick="checkPin()">Let's Go</button>
   </div>
 </div>
 
-<!-- MAIN APP -->
-<div id="app">
-<div class="container">
-
-  <header>
-    <div class="header-badge">Pregame Routine</div>
-    <h1>Goalie<span>Warmup</span></h1>
-    <div class="header-meta">
-      <span class="meta-pill">🏒 Ice Hockey</span>
-      <span class="meta-pill">⏱ <strong>40 min</strong> timed</span>
-      <span class="meta-pill">🧤 Glove + Blocker</span>
-    </div>
-  </header>
-
-  <div class="phase-dots">
-    <div class="dot p1" onclick="togglePhase('phase1')"></div>
-    <div class="dot p2" onclick="togglePhase('phase2')"></div>
-    <div class="dot p3" onclick="togglePhase('phase3')"></div>
-  </div>
-
-  <!-- PHASE 1 -->
-  <div class="phase phase-1 open" id="phase1">
-    <div class="phase-header" onclick="togglePhase('phase1')">
-      <span class="phase-number">01</span>
-      <span class="phase-title">Dynamic Warmup</span>
-      <span class="phase-time">15 min</span>
-      <span class="phase-chevron">▾</span>
-    </div>
-    <div class="phase-body">
-      <div class="section-label">Activation — No Gear</div>
-      <div class="exercise-list">
-        <div class="exercise-row">
-          <span class="exercise-icon">🏃</span>
-          <span class="exercise-name">Jog + High Knees</span>
-          <span class="exercise-detail">90 sec</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🦵</span>
-          <span class="exercise-name">Butt Kicks</span>
-          <span class="exercise-detail">30 sec</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">↔️</span>
-          <span class="exercise-name">Lateral Shuffles</span>
-          <span class="exercise-detail">45 sec each</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🔀</span>
-          <span class="exercise-name">Carioca (Grapevine)</span>
-          <span class="exercise-detail">30 sec each</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=ViOHs1b6jGc" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🦿</span>
-          <span class="exercise-name">Leg Swings — Front/Back</span>
-          <span class="exercise-detail">10 each leg</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🦿</span>
-          <span class="exercise-name">Leg Swings — Side to Side</span>
-          <span class="exercise-detail">10 each leg</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🔄</span>
-          <span class="exercise-name">Hip Circles</span>
-          <span class="exercise-detail">10 each way</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🧎</span>
-          <span class="exercise-name">Lunge with Torso Rotation</span>
-          <span class="exercise-detail">8 each leg</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🐛</span>
-          <span class="exercise-name">Inchworms</span>
-          <span class="exercise-detail">6 reps</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=Z19gpqxQBwo" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🦀</span>
-          <span class="exercise-name">Lateral Squat Walks</span>
-          <span class="exercise-detail">30 sec each</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">⭐</span>
-          <span class="exercise-name">Jumping Jacks</span>
-          <span class="exercise-detail">45 sec</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PHASE 2 -->
-  <div class="phase phase-2" id="phase2">
-    <div class="phase-header" onclick="togglePhase('phase2')">
-      <span class="phase-number">02</span>
-      <span class="phase-title">Static Stretching</span>
-      <span class="phase-time">10 min</span>
-      <span class="phase-chevron">▾</span>
-    </div>
-    <div class="phase-body">
-      <div class="section-label">Hold each 20–30 sec — No Gear</div>
-      <div class="exercise-list">
-        <div class="exercise-row">
-          <span class="exercise-icon">🦋</span>
-          <span class="exercise-name">Butterfly Stretch</span>
-          <span class="exercise-detail">Feet together, press knees</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=OrxjCE_tJ3k" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🧘</span>
-          <span class="exercise-name">Seated Groin Stretch</span>
-          <span class="exercise-detail">Wide legs, reach forward</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=OrxjCE_tJ3k" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🫀</span>
-          <span class="exercise-name">Hip Flexor Lunge Stretch</span>
-          <span class="exercise-detail">Each side</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=_UnqAJPyrno" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🦵</span>
-          <span class="exercise-name">Quad Stretch — Standing</span>
-          <span class="exercise-detail">Balance rep each leg</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">💪</span>
-          <span class="exercise-name">Shoulder Cross-Body Stretch</span>
-          <span class="exercise-detail">Each arm</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=aIq0fLi8iak" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🙆</span>
-          <span class="exercise-name">Tricep Overhead Stretch</span>
-          <span class="exercise-detail">Each arm</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
-        </div>
-        <div class="exercise-row">
-          <span class="exercise-icon">🫶</span>
-          <span class="exercise-name">Chest Opener</span>
-          <span class="exercise-detail">Hands clasped behind back</span>
-          <a class="watch-btn" href="https://www.youtube.com/watch?v=YSjQFsereZ4" target="_blank">Watch</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PHASE 3 -->
-  <div class="phase phase-3" id="phase3">
-    <div class="phase-header" onclick="togglePhase('phase3')">
-      <span class="phase-number">03</span>
-      <span class="phase-title">Glove &amp; Blocker Work</span>
-      <span class="phase-time">15 min</span>
-      <span class="phase-chevron">▾</span>
-    </div>
-    <div class="phase-body">
-      <div class="section-label">Off the Wall — Bottom Gear On — With Dad</div>
-      <div class="segment-list">
-        <div class="segment-row">
-          <span class="segment-icon">🧤</span>
-          <div>
-            <div class="segment-name">Easy Glove Catches</div>
-            <div class="segment-focus">Warm the hands, find your stance</div>
-          </div>
-          <span class="segment-time">3 min</span>
-        </div>
-        <div class="segment-row">
-          <span class="segment-icon">🛡️</span>
-          <div>
-            <div class="segment-name">Blocker Redirects Off Wall</div>
-            <div class="segment-focus">Technique and positioning</div>
-          </div>
-          <span class="segment-time">3 min</span>
-        </div>
-        <div class="segment-row">
-          <span class="segment-icon">👁️</span>
-          <div>
-            <div class="segment-name">Glove Reaction — Varied Speed &amp; Angle</div>
-            <div class="segment-focus">Hand-eye, tracking</div>
-          </div>
-          <span class="segment-time">4 min</span>
-        </div>
-        <div class="segment-row">
-          <span class="segment-icon">🔁</span>
-          <div>
-            <div class="segment-name">Two-Touch Combo — Glove/Blocker</div>
-            <div class="segment-focus">Coordination and focus</div>
-          </div>
-          <span class="segment-time">3 min</span>
-        </div>
-        <div class="segment-row">
-          <span class="segment-icon">⭐</span>
-          <div>
-            <div class="segment-name">Closing Sequence — Your Call</div>
-            <div class="segment-focus">Own it. You decide when you're ready.</div>
-          </div>
-          <span class="segment-time">2 min</span>
-        </div>
-      </div>
-      <div class="note-box">
-        <strong>Closing sequence note:</strong> These two minutes are yours. Pick what feels right and end the warmup on your terms. That's how you walk into the rink locked in.
-      </div>
-    </div>
-  </div>
-
-  <div class="total-bar">
+<!-- ════════════════ SETUP SCREEN ════════════════ -->
+<div id="setup-screen">
+  <div class="setup-card">
     <div>
-      <div class="total-label">Total Timed Warmup</div>
-      <div class="total-note">Gear-up time is separate</div>
+      <div class="setup-title">How much<span> time</span><br>do we have?</div>
     </div>
-    <div class="total-time">40 min</div>
+    <p class="setup-sub">Phases 1–4 only. Ball work runs after gear-up and isn't counted.</p>
+    <div class="time-field">
+      <div class="time-label">Available minutes</div>
+      <div class="time-input-row">
+        <input id="time-input" type="number" min="15" max="60" value="33" inputmode="numeric">
+        <span class="time-unit">min</span>
+      </div>
+      <div class="time-presets">
+        <button class="preset-btn" onclick="setPreset(20)">20 min</button>
+        <button class="preset-btn" onclick="setPreset(25)">25 min</button>
+        <button class="preset-btn active" onclick="setPreset(33)">33 min</button>
+        <button class="preset-btn" onclick="setPreset(40)">40 min</button>
+      </div>
+    </div>
+    <div class="phase-preview" id="phase-preview"></div>
+    <button class="start-btn" onclick="startRoutine()">Start Warmup →</button>
+  </div>
+</div>
+
+<!-- ════════════════ MAIN APP ════════════════ -->
+<div id="app">
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <button class="back-btn" onclick="goToSetup()">← Reset</button>
+    <div class="top-phase-info">
+      <div class="top-phase-label" id="top-phase-label">Phase 1 of 5</div>
+      <div class="top-phase-name" id="top-phase-name">Dynamic Warmup</div>
+    </div>
+    <div class="timer-display" id="timer-display" onclick="toggleTimer()">00:00</div>
   </div>
 
+  <!-- Phase dot nav -->
+  <div class="phase-nav" id="phase-nav"></div>
+
+  <!-- Progress -->
+  <div class="progress-strip">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <!-- Phase slides -->
+  <div class="phase-viewport">
+    <div class="phases-track" id="phases-track"></div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav" id="bottom-nav">
+    <button class="nav-btn nav-prev" id="nav-prev" onclick="prevPhase()">← Back</button>
+    <button class="nav-btn nav-next" id="nav-next" onclick="nextPhase()">Next Phase →</button>
+  </div>
 </div>
-</div><!-- /app -->
+
+<!-- ════════════════ COMPLETE SCREEN ════════════════ -->
+<div id="complete-screen">
+  <div class="complete-icon">🏒</div>
+  <div class="complete-title">Warmup<span> Done</span></div>
+  <p class="complete-sub">You're locked in. Go own the net.</p>
+  <div class="complete-stats">
+    <div class="stat-block">
+      <div class="stat-num" id="stat-checked">0</div>
+      <div class="stat-lbl">Exercises</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" id="stat-phases">5</div>
+      <div class="stat-lbl">Phases</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" id="stat-time">0:00</div>
+      <div class="stat-lbl">Elapsed</div>
+    </div>
+  </div>
+  <button class="reset-btn" onclick="fullReset()">Start Over</button>
+</div>
+
+<!-- Timer alert -->
+<div id="timer-alert">⏱ Time's up — wrap up &amp; gear on</div>
 
 <script>
-  // ─── SET YOUR PIN HERE ────────────────────────────────────────────
-  const CORRECT_PIN = '0911';
-  // ─────────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
+   CONFIG — SET YOUR PIN HERE
+═══════════════════════════════════════════════════════════ */
+const CORRECT_PIN = '0911';
 
-  const SESSION_KEY = 'goalie_warmup_auth';
-
-  function togglePhase(id) {
-    const el = document.getElementById(id);
-    el.classList.toggle('open');
+/* ═══════════════════════════════════════════════════════════
+   PHASE DATA
+═══════════════════════════════════════════════════════════ */
+// base durations in minutes (total = 33 for phases 1-4)
+const BASE_TOTAL = 33;
+const PHASES = [
+  {
+    id: 1,
+    key: 'raise',
+    label: 'Phase 1',
+    name: 'Raise',
+    color: 'var(--c1)',
+    baseMins: 5,
+    note: null,
+    timed: true,
+    exercises: [
+      { icon:'⭐', name:'Jumping Jacks',        detail:'45 sec',          yt:'https://www.youtube.com/watch?v=iSSAk4XCsRA' },
+      { icon:'🏃', name:'Jog (easy pace)',       detail:'60 sec',          yt:null },
+      { icon:'🦵', name:'High Knees',            detail:'30 sec',          yt:'https://www.youtube.com/watch?v=TVE_r1Af9r8' },
+      { icon:'🦵', name:'Butt Kickers',          detail:'30 sec',          yt:'https://www.youtube.com/watch?v=oMW59TKZvaI' },
+      { icon:'💪', name:'Arm Circles',           detail:'20 sec fwd + back', yt:'https://www.youtube.com/watch?v=4VCFogzVLh8' },
+      { icon:'🤝', name:'Arm Crosses',           detail:'20 sec',          yt:null },
+    ]
+  },
+  {
+    id: 2,
+    key: 'mobilize',
+    label: 'Phase 2',
+    name: 'Mobilize + Activate',
+    color: 'var(--c2)',
+    baseMins: 15,
+    note: null,
+    timed: true,
+    exercises: [
+      { icon:'🚪', name:'Open the Gate',          detail:'8 each leg',   yt:'https://www.youtube.com/watch?v=YSdMpn_EJOw' },
+      { icon:'🚪', name:'Close the Gate',         detail:'8 each leg',   yt:'https://www.youtube.com/watch?v=YSdMpn_EJOw' },
+      { icon:'🦵', name:'Sumos',                  detail:'8 reps',       yt:'https://www.youtube.com/watch?v=IB82jp_DVjs' },
+      { icon:'↔️', name:'Side Lunges',             detail:'6 each side',  yt:'https://www.youtube.com/watch?v=gwLzBJYoWlI' },
+      { icon:'🦵', name:'High Kicks',             detail:'8 each leg',   yt:'https://www.youtube.com/watch?v=TVE_r1Af9r8' },
+      { icon:'🔀', name:'Leg Swings — Front/Back', detail:'10 each leg',  yt:'https://www.youtube.com/watch?v=UN9j_8l3keM' },
+      { icon:'↔️', name:'Leg Swings — Side/Side', detail:'10 each leg',  yt:'https://www.youtube.com/watch?v=UN9j_8l3keM' },
+      { icon:'🧎', name:'Forward Lunge + Twist',  detail:'6 each leg',   yt:'https://www.youtube.com/watch?v=opWGPRq8rs0' },
+      { icon:'🐛', name:'Inchworms',              detail:'5 reps',       yt:'https://www.youtube.com/watch?v=fhFFcKW_d5c' },
+      { icon:'💪', name:'Supermans',              detail:'8 reps',       yt:'https://www.youtube.com/watch?v=z6PJMT2y8GQ' },
+      { icon:'🍑', name:'Glute Bridges',          detail:'10 reps',      yt:'https://www.youtube.com/watch?v=3nQeWv5Tx1A' },
+      { icon:'🧘', name:'Deep Squat Hold + Reach',detail:'30 sec',       yt:'https://www.youtube.com/watch?v=Reiw2e3NmBY' },
+    ]
+  },
+  {
+    id: 3,
+    key: 'static',
+    label: 'Phase 3',
+    name: 'Static Stretch',
+    color: 'var(--c3)',
+    baseMins: 8,
+    note: 'Hold each stretch 25–30 seconds. Sequence flows from floor to standing.',
+    timed: true,
+    exercises: [
+      { icon:'🔄', name:'90/90s',                 detail:'Both sides',               yt:'https://www.youtube.com/watch?v=t4Zz6-aG8Iw' },
+      { icon:'🦋', name:'Butterfly Stretch',       detail:'Feet together, press knees', yt:'https://www.youtube.com/watch?v=VAwm7Rh8yGA' },
+      { icon:'🧘', name:'Mohawk Squats',           detail:'Slow + controlled',        yt:'https://www.youtube.com/watch?v=uPRIotl9Pa4' },
+      { icon:'🫀', name:'Half-Kneeling Hip Flexor',detail:'Each side',                yt:'https://www.youtube.com/watch?v=Bfb-9dIWEr4' },
+      { icon:'🦵', name:'Standing Quad Stretch',   detail:'Each leg',                 yt:'https://www.youtube.com/watch?v=EBm0sDzSmX0' },
+      { icon:'🤲', name:'Wall Chest Stretch',      detail:'Each side',                yt:'https://www.youtube.com/watch?v=VpwzheWKVTQ' },
+    ]
+  },
+  {
+    id: 4,
+    key: 'potentiate',
+    label: 'Phase 4',
+    name: 'Potentiate',
+    color: 'var(--c4)',
+    baseMins: 5,
+    note: 'Short, sharp, not fatiguing. Prime the explosive system before gear-up.',
+    timed: true,
+    exercises: [
+      { icon:'🔀', name:'Karaoke',                detail:'20 sec each way', yt:'https://www.youtube.com/watch?v=94ixIbZPrHc' },
+      { icon:'🦘', name:'Skater Bounds',           detail:'4 each side',    yt:'https://www.youtube.com/watch?v=G5tsTOqrkec' },
+      { icon:'💨', name:'Sprint (10m)',             detail:'3 reps',         yt:null },
+    ]
+  },
+  {
+    id: 5,
+    key: 'ballwork',
+    label: 'Phase 5',
+    name: 'Ball Work',
+    color: 'var(--c5)',
+    baseMins: null,
+    note: '⚠️ Gear up (bottoms on) before starting this phase. Timer does not apply.',
+    timed: false,
+    segments: [
+      { icon:'🧤', name:'Easy Glove Catches',          focus:'Warm the hands — find your stance',                  time:'3 min' },
+      { icon:'🛡️', name:'Blocker Redirects Off Wall',   focus:'Technique and positioning',                          time:'3 min' },
+      { icon:'👁️', name:'Glove Reaction — Squash Ball', focus:'Ball thrown from behind — track and react',          time:'3 min' },
+      { icon:'🏀', name:'Reaction Ball — Butterfly',    focus:'Drop and recover reps with the reaction ball',       time:'3 min' },
+      { icon:'🔁', name:'Two-Touch Combo — Glove/Blocker', focus:'Coordination and focus',                          time:'2 min' },
+      { icon:'⭐', name:'Closing Sequence — Your Call', focus:'Own it. You decide when you\'re ready.',             time:'2 min' },
+    ]
   }
+];
 
-  function checkPin() {
-    const input = document.getElementById('pin-input').value.trim();
-    if (input === CORRECT_PIN) {
-      sessionStorage.setItem(SESSION_KEY, 'true');
-      document.getElementById('pin-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-    } else {
-      const err = document.getElementById('pin-error');
-      const box = document.getElementById('pin-input');
-      err.style.opacity = '1';
-      box.value = '';
-      box.focus();
-      box.style.borderColor = '#ef4444';
-      setTimeout(() => {
-        err.style.opacity = '0';
-        box.style.borderColor = 'rgba(0,180,216,0.3)';
-      }, 2000);
-    }
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let totalMins = 33;
+let allocatedMins = []; // per-phase allocated minutes (phases 0-3)
+let checked = {};       // { 'phaseKey-idx': bool }
+let currentPhase = 0;
+let timerInterval = null;
+let timerSecondsLeft = 0;
+let timerRunning = false;
+let timerStarted = false;
+let elapsedSeconds = 0;
+let elapsedInterval = null;
+
+/* ═══════════════════════════════════════════════════════════
+   PIN
+═══════════════════════════════════════════════════════════ */
+function checkPin() {
+  const input = document.getElementById('pin-input').value.trim();
+  if (input === CORRECT_PIN) {
+    document.getElementById('pin-screen').style.display = 'none';
+    showSetup();
+  } else {
+    const err = document.getElementById('pin-error');
+    const box = document.getElementById('pin-input');
+    err.style.opacity = '1';
+    box.value = '';
+    box.focus();
+    box.style.borderColor = 'var(--red)';
+    setTimeout(() => { err.style.opacity = '0'; box.style.borderColor = 'rgba(0,180,216,.3)'; }, 2000);
   }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('goalie_auth') === 'true') {
+    document.getElementById('pin-screen').style.display = 'none';
+    showSetup();
+  }
+  document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key==='Enter') checkPin(); });
+  document.getElementById('time-input').addEventListener('input', updatePreview);
+});
+// store auth after PIN
+function authOk() { sessionStorage.setItem('goalie_auth','true'); }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    if (sessionStorage.getItem(SESSION_KEY) === 'true') {
-      document.getElementById('pin-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-    } else {
-      document.getElementById('pin-screen').style.display = 'flex';
-      document.getElementById('app').style.display = 'none';
-      setTimeout(() => document.getElementById('pin-input').focus(), 100);
-    }
+/* ═══════════════════════════════════════════════════════════
+   SETUP
+═══════════════════════════════════════════════════════════ */
+function showSetup() {
+  authOk();
+  document.getElementById('setup-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('complete-screen').style.display = 'none';
+  updatePreview();
+}
 
-    document.getElementById('pin-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') checkPin();
-    });
+function setPreset(val) {
+  document.getElementById('time-input').value = val;
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === val+' min');
   });
+  updatePreview();
+}
+
+function computeAllocations(total) {
+  // proportional scaling of the 4 timed phases
+  const timedPhases = PHASES.filter(p => p.timed);
+  return timedPhases.map(p => Math.max(1, Math.round(p.baseMins / BASE_TOTAL * total)));
+}
+
+function updatePreview() {
+  const val = parseInt(document.getElementById('time-input').value) || 33;
+  totalMins = Math.min(60, Math.max(10, val));
+  const allocs = computeAllocations(totalMins);
+  const timedPhases = PHASES.filter(p => p.timed);
+  const container = document.getElementById('phase-preview');
+  container.innerHTML = '<div class="preview-label">Phase breakdown</div>' +
+    timedPhases.map((p, i) =>
+      `<div class="preview-row">
+        <div class="preview-dot" style="background:${p.color}"></div>
+        <div class="preview-name">${p.name}</div>
+        <div class="preview-dur" style="color:${p.color}">${allocs[i]} min</div>
+      </div>`
+    ).join('') +
+    `<div class="preview-row" style="margin-top:6px;padding-top:8px;border-top:1px solid rgba(255,255,255,.05)">
+      <div class="preview-dot" style="background:var(--c5)"></div>
+      <div class="preview-name">Ball Work</div>
+      <div class="preview-dur" style="color:var(--muted)">after gear-up</div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   START
+═══════════════════════════════════════════════════════════ */
+function startRoutine() {
+  totalMins = Math.min(60, Math.max(10, parseInt(document.getElementById('time-input').value) || 33));
+  allocatedMins = computeAllocations(totalMins);
+  checked = {};
+  currentPhase = 0;
+  timerSecondsLeft = totalMins * 60;
+  timerRunning = false;
+  timerStarted = false;
+  elapsedSeconds = 0;
+
+  buildSlides();
+  buildPhaseNav();
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('bottom-nav').style.display = 'flex';
+  document.getElementById('complete-screen').style.display = 'none';
+
+  renderTimer();
+  goToPhase(0);
+  startTimer();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUILD UI
+═══════════════════════════════════════════════════════════ */
+function buildSlides() {
+  const track = document.getElementById('phases-track');
+  track.innerHTML = '';
+  PHASES.forEach((phase, pi) => {
+    const slide = document.createElement('div');
+    slide.className = 'phase-slide';
+    slide.id = `slide-${pi}`;
+    const alloc = phase.timed ? allocatedMins[pi] : null;
+    const allocLabel = alloc ? `${alloc} min allocated` : 'Gear-up first — no timer';
+    let content = `
+      <div class="phase-header-block">
+        <div class="phase-num-badge">${phase.label}</div>
+        <div class="phase-title-block">
+          <div class="phase-slide-title">${phase.name}</div>
+          <div class="phase-slide-meta">${allocLabel}</div>
+        </div>
+        <div class="phase-alloc" style="color:${phase.color}" id="phase-alloc-${pi}">${alloc ? alloc+'min' : ''}</div>
+      </div>
+      <div class="phase-progress-row">
+        <div class="phase-check-count" id="check-count-${pi}">0 / ${phase.exercises ? phase.exercises.length : phase.segments.length} done</div>
+        <div class="mini-bar"><div class="mini-fill" id="mini-fill-${pi}" style="width:0%;background:${phase.color}"></div></div>
+      </div>`;
+
+    if (phase.exercises) {
+      content += `<div class="ex-list">` +
+        phase.exercises.map((ex, ei) => {
+          const k = `${phase.key}-${ei}`;
+          const ytBtn = ex.yt ? `<a class="yt-btn" href="${ex.yt}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Watch demo">▶</a>` : '';
+          return `<div class="ex-row" id="exrow-${k}" onclick="toggleCheck('${k}',${pi})">
+            <div class="ex-checkbox" id="cb-${k}">✓</div>
+            <span class="ex-icon">${ex.icon}</span>
+            <span class="ex-name">${ex.name}</span>
+            <span class="ex-detail">${ex.detail}</span>
+            ${ytBtn}
+          </div>`;
+        }).join('') + `</div>`;
+    } else {
+      // segments
+      content += `<div class="section-divider">Gear-up → bottoms on before starting</div>`;
+      content += `<div class="ex-list">` +
+        phase.segments.map((seg, si) => {
+          const k = `${phase.key}-${si}`;
+          return `<div class="seg-row" id="exrow-${k}" onclick="toggleCheck('${k}',${pi})">
+            <div class="ex-checkbox" id="cb-${k}">✓</div>
+            <span class="ex-icon">${seg.icon}</span>
+            <div class="seg-content">
+              <div class="seg-name">${seg.name}</div>
+              <div class="seg-focus">${seg.focus}</div>
+            </div>
+            <div class="seg-time" style="color:var(--c5)">${seg.time}</div>
+          </div>`;
+        }).join('') + `</div>`;
+    }
+
+    if (phase.note) {
+      content += `<div class="note-box"><strong>Note:</strong> ${phase.note}</div>`;
+    }
+
+    slide.innerHTML = content;
+    track.appendChild(slide);
+  });
+}
+
+function buildPhaseNav() {
+  const nav = document.getElementById('phase-nav');
+  nav.innerHTML = PHASES.map((p, i) =>
+    `<button class="phase-dot-btn" id="pdb-${i}" onclick="goToPhase(${i})">
+      <div class="pdot" id="pdot-${i}" style="background:${p.color}"></div>
+      <div class="pdot-label">${i+1}</div>
+    </button>`
+  ).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════ */
+function goToPhase(idx) {
+  currentPhase = idx;
+  const track = document.getElementById('phases-track');
+  track.style.transform = `translateX(-${idx * 100}%)`;
+
+  // top bar
+  document.getElementById('top-phase-label').textContent = `Phase ${idx+1} of ${PHASES.length}`;
+  document.getElementById('top-phase-name').textContent = PHASES[idx].name;
+
+  // dot nav
+  PHASES.forEach((_, i) => {
+    const dot = document.getElementById(`pdot-${i}`);
+    const btn = document.getElementById(`pdb-${i}`);
+    dot.classList.toggle('active', i === idx);
+    dot.classList.toggle('done', i < idx);
+    btn.classList.toggle('active', i === idx);
+  });
+
+  // bottom nav
+  const prevBtn = document.getElementById('nav-prev');
+  const nextBtn = document.getElementById('nav-next');
+  prevBtn.style.display = idx === 0 ? 'none' : 'block';
+  if (idx === PHASES.length - 1) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.className = 'nav-btn nav-next finish';
+  } else {
+    nextBtn.textContent = 'Next Phase →';
+    nextBtn.className = 'nav-btn nav-next';
+  }
+
+  // progress fill (based on phase, not exercises)
+  const pct = (idx / PHASES.length) * 100;
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = PHASES[idx].color;
+
+  // if entering phase 5 (ball work), pause/stop timer
+  if (!PHASES[idx].timed && timerRunning) {
+    pauseTimer();
+  }
+}
+
+function nextPhase() {
+  if (currentPhase < PHASES.length - 1) {
+    goToPhase(currentPhase + 1);
+  } else {
+    finishRoutine();
+  }
+}
+function prevPhase() {
+  if (currentPhase > 0) goToPhase(currentPhase - 1);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHECK OFF
+═══════════════════════════════════════════════════════════ */
+function toggleCheck(key, phaseIdx) {
+  checked[key] = !checked[key];
+  const row = document.getElementById(`exrow-${key}`);
+  const cb  = document.getElementById(`cb-${key}`);
+  row.classList.toggle('checked', checked[key]);
+  cb.style.background  = checked[key] ? 'var(--green)' : '';
+  cb.style.borderColor = checked[key] ? 'var(--green)' : '';
+  updatePhaseProgress(phaseIdx);
+}
+
+function updatePhaseProgress(phaseIdx) {
+  const phase = PHASES[phaseIdx];
+  const items = phase.exercises || phase.segments;
+  const total = items.length;
+  const done  = items.filter((_, i) => checked[`${phase.key}-${i}`]).length;
+  document.getElementById(`check-count-${phaseIdx}`).textContent = `${done} / ${total} done`;
+  document.getElementById(`mini-fill-${phaseIdx}`).style.width = (done/total*100) + '%';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════════════════ */
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerRunning = true;
+  timerStarted = true;
+  timerInterval = setInterval(() => {
+    if (timerRunning) {
+      if (timerSecondsLeft > 0) {
+        timerSecondsLeft--;
+        elapsedSeconds++;
+      } else if (timerSecondsLeft === 0) {
+        timerSecondsLeft = -1; // prevent repeated triggers
+        onTimerEnd();
+      }
+      renderTimer();
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  timerRunning = false;
+  renderTimer();
+}
+function resumeTimer() {
+  if (!PHASES[currentPhase].timed) return; // don't resume on ball work
+  timerRunning = true;
+  renderTimer();
+}
+function toggleTimer() {
+  if (!timerStarted) return;
+  if (!PHASES[currentPhase].timed) return;
+  if (timerRunning) pauseTimer(); else resumeTimer();
+}
+
+function renderTimer() {
+  const el = document.getElementById('timer-display');
+  if (timerSecondsLeft <= 0) {
+    el.textContent = '0:00';
+    el.className = 'timer-display done';
+    return;
+  }
+  const m = Math.floor(timerSecondsLeft / 60);
+  const s = timerSecondsLeft % 60;
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  el.classList.remove('warning','danger','done','paused');
+  if (!timerRunning) { el.classList.add('paused'); return; }
+  if (timerSecondsLeft <= 60)        el.classList.add('danger');
+  else if (timerSecondsLeft <= 180)  el.classList.add('warning');
+}
+
+function onTimerEnd() {
+  // Play a beep
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.3, 0.6].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.4, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.3);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.3);
+    });
+  } catch(e) {}
+
+  // Visual alert
+  const alert = document.getElementById('timer-alert');
+  alert.classList.add('show');
+  setTimeout(() => alert.classList.remove('show'), 4000);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FINISH + RESET
+═══════════════════════════════════════════════════════════ */
+function finishRoutine() {
+  if (timerInterval) clearInterval(timerInterval);
+
+  const totalChecked = Object.values(checked).filter(Boolean).length;
+  const m = Math.floor(elapsedSeconds / 60);
+  const s = elapsedSeconds % 60;
+
+  document.getElementById('stat-checked').textContent = totalChecked;
+  document.getElementById('stat-phases').textContent  = PHASES.length;
+  document.getElementById('stat-time').textContent    = `${m}:${s.toString().padStart(2,'0')}`;
+
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('bottom-nav').style.display = 'none';
+  document.getElementById('complete-screen').style.display = 'flex';
+}
+
+function fullReset() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+  document.getElementById('complete-screen').style.display = 'none';
+  showSetup();
+}
+
+function goToSetup() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('bottom-nav').style.display = 'none';
+  showSetup();
+}
 </script>
-
-<style>
-  #pin-screen {
-    position: fixed;
-    inset: 0;
-    background: var(--deep);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-  }
-
-  #pin-screen::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,180,216,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 60% at 80% 100%, rgba(26,58,107,0.4) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .pin-card {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 28px;
-    padding: 48px 40px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(0,180,216,0.15);
-    border-radius: 6px;
-    width: 100%;
-    max-width: 360px;
-    margin: 16px;
-  }
-
-  .pin-logo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .pin-puck {
-    font-size: 40px;
-    line-height: 1;
-  }
-
-  .pin-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 28px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #fff;
-    text-align: center;
-  }
-
-  .pin-title span {
-    color: var(--accent);
-  }
-
-  .pin-subtitle {
-    font-size: 13px;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.4;
-  }
-
-  .pin-field {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .pin-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-align: center;
-  }
-
-  #pin-input {
-    width: 100%;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(0,180,216,0.3);
-    border-radius: 4px;
-    padding: 14px 16px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: 6px;
-    color: #fff;
-    text-align: center;
-    outline: none;
-    transition: border-color 0.2s, background 0.2s;
-    -webkit-text-security: disc;
-  }
-
-  #pin-input:focus {
-    border-color: var(--accent);
-    background: rgba(0,180,216,0.06);
-  }
-
-  #pin-error {
-    font-size: 12px;
-    color: #ef4444;
-    text-align: center;
-    opacity: 0;
-    transition: opacity 0.2s;
-    min-height: 18px;
-  }
-
-  .pin-btn {
-    width: 100%;
-    padding: 14px;
-    background: var(--accent);
-    color: var(--deep);
-    border: none;
-    border-radius: 4px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
-  }
-
-  .pin-btn:hover { background: #00c9f0; }
-  .pin-btn:active { transform: scale(0.98); }
-</style>
 </body>
 </html>
